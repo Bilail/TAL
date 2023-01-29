@@ -11,3 +11,11 @@
 .replit
 replit.nix
 venv/
+
+.cache
+.config
+.upm
+poetry.lock
+replit*
+pyproject.toml
+TP/TP1/__pycache__/*

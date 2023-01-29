@@ -27,7 +27,10 @@
   and/CC
   Hot/NNP
   Springs/NNP
-  ./.)(S Not/RB (Compound this/DT year/NN) ./.)(S
+  ./.
+  Not/RB
+  (Compound this/DT year/NN)
+  ./.
   The/DT
   National/NNP
   Association/NNP
@@ -45,7 +48,7 @@
   fall/JJS
   (Compound board/NN)
   (Compound meeting/NN)
-  ./.)(S
+  ./.
   And/CC
   (Compound the/DT city/NN)
   decided/VBD
@@ -62,7 +65,7 @@
   than/IN
   (Compound factory/NN)
   owners/NNS
-  ./.)(S
+  ./.
   (Compound The/DT idea/NN)
   ,/,
   of/IN

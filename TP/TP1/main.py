@@ -1,18 +1,35 @@
 import nltk
-import morpho_syntax
-import syntax
-from TP.TP1 import entites
+from analyse_morpho_syntaxique import analyse_morpho_syntaxique
+from analyse_syntaxique import analyse_syntaxique
+from entites_nommees import extraction_entites_nommees, conversion_etiquettes
 
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
+nltk.download('words')
+nltk.download('maxent_ne_chunker')
 
-file = 'wsj_0010_sample.txt'
-# 1 :
-morpho_syntax.morph_syntax_analys(file)
+file = 'data/wsj_0010_sample.txt'
 
-# 2 :
-syntax.syntax_analys(file)
+print("-----------------")
+print("---- PARIE 1 ----")
+print("-----------------")
+analyse_morpho_syntaxique(file)
 
-#3 :
-entites.entities_analys(file)
-entites.convert_etiquette(file)
+
+print("-----------------")
+print("---- PARIE 2 ----")
+print("-----------------")
+analyse_syntaxique(file)
+
+
+print("-----------------")
+print("---- PARIE 3 ----")
+print("-----------------")
+print("# Utilisation du fichier " + file)
+extraction_entites_nommees(file)
+conversion_etiquettes(file)
+file = 'data/formal-tst.NE.key.04oct95_sample.txt'
+print("# Utilisation du fichier " + file)
+extraction_entites_nommees(file)
+conversion_etiquettes(file)
+

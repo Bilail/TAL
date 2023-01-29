@@ -1,0 +1,4 @@
+Adjective-Noun: {<JJ><NN>}
+Noun-Noun: {<NN><NN>}
+Adjective-Noun-Noun: {<JJ><NN><NN>}
+Adjective-Adjective-Noun: {<JJ><JJ><NN>}
