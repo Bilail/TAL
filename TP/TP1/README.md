@@ -1,3 +1,7 @@
+## Auteurs :
+- BEN YAHIA Bilail
+- HAMMADOU Rayane
+
 # TP 1 Analyse linguistique NLTK 
 
 Le code complet du TP s'exécute grâce au fichier `main.py` avec la commande `python main.py`. Il est nécessaire de se placer dans le répertoire `TP/TP1/.` pour exécuter le fichier `main.py`.
