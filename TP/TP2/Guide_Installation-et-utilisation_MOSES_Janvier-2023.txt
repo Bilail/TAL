@@ -1,0 +1,557 @@
+****************************************************************************************
+*                                                                                      *
+*		    Guide d'Installtion et d'Utilisation de Moses                              *
+*                                                                                      *
+* Nasredine SEMMAR                                                                     *
+* CEA LIST - LVIC                                                                      *
+* Gif sur Yvette - France                                                              *
+* nasredine.semmar@cea.fr                                                              *
+*                                                                                      *
+* Note: Ce guide a été réalisé en se basant sur les sites officiels suivants de Moses: *
+* http://www.statmt.org/moses/?n=Development.GetStarted                                *
+* http://www.statmt.org/moses/?n=Moses.Baseline                                        *
+*                                                                                      *
+* 31 janvier 2023                                                                      *
+*                                                                                      *
+****************************************************************************************
+		
+		
+I. INSTALLATION
+===============
+
+0) Prepare the installation of software
+--------------------------------------
+
+sudo rm /var/lib/dpkg/lock
+sudo rm /var/lib/apt/lists/lock
+sudo rm /var/cache/apt/archives/lock
+sudo apt-get update
+
+
+1) Installation de packages logiciels de compilation et d'installation
+----------------------------------------------------------------------
+		
+sudo apt-get install g++
+
+sudo apt-get install git
+
+sudo apt-get install subversion
+
+sudo apt-get install automake
+
+sudo apt-get install libtool
+
+sudo apt-get install zlib1g-dev
+
+sudo apt-get install libboost-all-dev
+
+sudo apt-get install libbz2-dev
+
+sudo apt-get install liblzma-dev
+
+sudo apt-get install python-dev
+
+sudo apt-get install libgoogle-perftools-dev (for tcmalloc)
+
+
+2) Installation de Boost (Dans le cas où les commandes précédentes n'ont pas donné les résultats souhaités)
+-----------------------------------------------------------------------------------------------------------
+
+a. Installer libboost-all-dev
+
+sudo apt-get install libboost-all-dev
+
+b. Installer les fichiers d'entête (e.g.: bzlib.h)
+
+sudo apt-get install libbz2-dev
+
+c. Récupérer la librairie boost (Par exemple: boost_1_57_0.tar.gz => https://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz/download) et l'installer
+
+tar zxvf boost_1_57_0.tar.gz
+
+cd boost_1_57_0/
+
+./bootstrap.sh
+
+./b2 -j8 --prefix=/home/username/TAL/TP_2/boost_1_57_0 --libdir=/home/username/TAL/TP_2/boost_1_57_0/lib64 --layout=system link=static install || echo FAILURE
+
+
+Remarque:
+Le répertoire d'installation de la librairie Boost est /home/username/TAL/TP_2/boost_1_57_0 ($PWD)
+
+
+3) Installation de Moses
+------------------------
+
+a. Récupérer Moses
+
+git clone https://github.com/moses-smt/mosesdecoder.git
+
+
+b. Installer Moses
+
+cd mosesdecoder/
+
+./bjam --with-boost=/home/username/TAL/TP_2/boost_1_57_0 -j8
+
+
+4) Installation de GIZA++
+-------------------------
+
+a. Récupérer GIZA++ (à partir de https://code.google.com/archive/p/moses-suite/downloads)
+
+tar zxvf giza-pp-v1.0.7.tar.gz
+
+b. Installer GIZA++
+
+cd giza-pp/
+
+make
+
+
+c. Utilisation des binaires de GIZA++ par Moses lors de la construction du modèle de traduction 
+
+Sur le répoertoire /home/semmar/Projects/Moses/mosesdecoder
+
+mkdir tools
+
+cp /home/username/TAL/TP_2/giza-pp/GIZA++-v2/GIZA++ /home/username/TAL/TP_2/giza-pp/GIZA++-v2/snt2cooc.out /home/username/TAL/TP_2/giza-pp/mkcls-v2/mkcls /home/username/TAL/TP_2/mosesdecoder/tools
+
+Exemple de lancement de Giza++:
+
+1. Sur le répertoire /home/username/TAL/TP_2
+
+source Moses.env
+
+2. Sur le répertoire /home/username/TAL/TP_2/Experiments/WordAlignment
+
+plain2snt.out Europarl_dev_1k.en Europarl_dev_1k.fr
+
+Résultat:
+Europarl_dev_1k.en_Europarl_dev_1k.fr.snt
+Europarl_dev_1k.en.vcb
+Europarl_dev_1k.fr_Europarl_dev_1k.en.snt
+Europarl_dev_1k.fr.vcb
+
+3. Sur le répertoire /home/username/TAL/TP_2/Experiments/WordAlignment
+
+mkcls -pEuroparl_dev_1k.en -VEuroparl_dev_1k.en.vcb.classes
+
+(ou mkcls -c2 -n2 -pEuroparl_dev_1k.en -VEuroparl_dev_1k.en.vcb.classes => Generates 2 classes in 2 optimization runs for the corpus 'pEuroparl_dev_1k.en' and writes the classes in 'Europarl_dev_1k.en')
+
+mkcls -pEuroparl_dev_1k.fr -VEuroparl_dev_1k.fr.vcb.classes
+
+Résultat:
+
+Europarl_dev_1k.en.vcb.classes
+Europarl_dev_1k.en.vcb.classes.cats
+Europarl_dev_1k.fr.vcb.classes
+Europarl_dev_1k.fr.vcb.classes.cats
+
+Remarque:
+mkcls - a program for making word classes
+Usage: 
+ mkcls [-nnum] [-ptrain] [-Vfile] opt
+
+ -V output classes (Default: no file)
+-n number of optimization runs (Default: 1); larger number => better results
+-p filename of training corpus (Default: 'train')
+
+Example:
+mkcls -c80 -n10 -pin -Vout opt => Generates 80 classes for the corpus 'in' and writes the classes in 'out'
+
+4. Sur le répertoire /home/username/TAL/TP_2/Experiments/WordAlignment
+
+snt2cooc.out Europarl_dev_1k.en.vcb Europarl_dev_1k.fr.vcb Europarl_dev_1k.en_Europarl_dev_1k.fr.snt > Europarl_dev_1k.en_Europarl_dev_1k.fr.snt.cooc
+
+Résultat:
+Europarl_dev_1k.en_Europarl_dev_1k.fr.snt.cooc
+
+5. Sur le répertoire /home/semmar/Projects/Moses/Experimentation/GIZA/WordAlignment/Small
+
+./GIZA++ -S [target_language_corpus].vcb -T [source_language_corpus].vcb -C [target_language_corpus]_[source_language_corpus].snt -o [prefix] -outputpath [output_folder]
+
+
+GIZA++ -S Europarl_dev_1k.en.vcb –T Europarl_dev_1k.fr.vcb –C Europarl_dev_1k.en_Europarl_dev_1k.fr.snt -CoocurrenceFile Europarl_dev_1k.en_Europarl_dev_1k.fr.snt.cooc -o AlignmentResult
+
+Résultat:
+AlignmentResult.*
+
+Remarque:
+- La table de traduction se trouve dans le fichier "AlignmentResult.t3.final"
+
+
+5) Installation de mgiza
+------------------------
+
+git clone https://github.com/moses-smt/mgiza.git
+
+cd mgiza/mgizapp
+
+cmake . (sudo apt install cmake si cmake n'est pas installé)
+
+make
+
+make install
+
+Exemple de lancement de MGIZA:
+
+mgiza -S Europarl_1000_en.txt.vcb –T Europarl_1000_fr.txt.vcb –C Europarl_1000_en.txt_Europarl_1000_fr.txt.snt -CoocurrenceFile Europarl_1000_en.txt_Europarl_1000_fr.txt.cooc -o AlignmentResult
+
+mgiza -S Europarl_dev_1k.en.vcb –T Europarl_dev_1k.fr.vcb –C Europarl_dev_1k.en_Europarl_dev_1k.fr.snt -CoocurrenceFile Europarl_dev_1k.en_Europarl_dev_1k.fr.snt.cooc -o MGIZAAlignmentResult
+
+
+6) Installation de IRSTLM
+-------------------------
+
+a. Récupérer IRSTLM sur  ftp://ftp.kr.debian.org/macports/mpdistfiles/irstlm/irstlm-5.80.03.tgz
+
+wget ftp://ftp.kr.debian.org/macports/mpdistfiles/irstlm/irstlm-5.80.03.tgz
+
+ou à partir de:
+
+https://sourceforge.net/projects/irstlm/files/irstlm/irstlm-5.80/irstlm-5.80.03.tgz/download
+
+tar xvfz irstlm-5.80.03.tgz
+
+b. Compilation et installation de IRSTLM
+
+cd irstlm-5.80.03/
+
+sh regenerate-makefiles.sh --force
+
+./configure --prefix=/home/username/TAL/TP_2/irstlm (The software will be installed into /home/username/TAL/TP_2/irstlm)
+
+make
+
+make install
+
+Remarque:
+On peut  récuper une version plus récente de IRSTLM à partir de  http://sourceforge.net/projects/irstlm/ et l'installer comme suit:
+
+tar zxvf irstlm-5.80.08.tgz
+cd irstlm-5.80.08
+cd trunk/
+./regenerate-makefiles.sh
+cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="/home/username/TAL/TP_2/irstlm" (The software will be installed into /home/username/TAL/TP_2/irstlm)
+
+Résultat:
+Les répertoires suivants sont créés sous le répertoire "/home/username/TAL/TP_2/irstlm":
+
+bin/ (contient des scripts, programmes Perl et binaires: build-lm.sh, build-sublm.pl, compile-lm...) 
+include/ (contient des en-têtes: cmd.h, dictionary.h...) 
+lib (contient les librairies libirstlm.la et libirstlm.a)
+
+
+II. UTILISATION
+===============
+
+1) Préparation du corpus
+------------------------
+
+a. Récupération du corpus EuroParl
+
+Copier sur le répertoire /home/username/TAL/TP_2/Experiments/Translation les fichiers suivants:
+
+Europarl_dev_1k.en
+Europarl_dev_1k.fr
+Europarl_test_500.en
+Europarl_test_500.fr
+Europarl_train_10k.en
+Europarl_train_10k.fr
+
+b. Tokenisation du corpus Anglais-Français
+
+Sous le répertoire /home/username/TAL/TP_2/Experiments/Translation
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < Europarl_train_10k.en > Europarl_train_10k.en.tok
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/tokenizer.perl -l fr < Europarl_train_10k.fr > Europarl_train_10k.fr.tok
+
+Résultat:
+Europarl_train_10k.en.tok
+Europarl_train_10k.en.tok
+
+c. Changement des majuscules en minuscules du corpus Anglais-Français
+
+1. Apprentissage du modèle de transformation
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/train-truecaser.perl --model truecase-model.en --corpus Europarl_train_10k.en.tok
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/train-truecaser.perl --model truecase-model.fr --corpus Europarl_train_10k.fr.tok
+
+Résultat:
+truecase-model.en
+truecase-model.fr
+
+2. Transformation
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/truecase.perl --model truecase-model.en < Europarl_train_10k.en.tok > Europarl_train_10k.en.tok.true
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/truecase.perl --model truecase-model.fr < Europarl_train_10k.fr.tok > Europarl_train_10k.fr.tok.true
+
+Résultat:
+Europarl_train_10k.en.tok.true
+Europarl_train_10k.fr.tok.true
+
+
+d. Nettoyage en limitant la longueur des phrases à 80 caractères
+
+cp Europarl_train_10k.en.tok.true Europarl_train_10k.tok.true.en
+cp Europarl_train_10k.fr.tok.true Europarl_train_10k.tok.true.fr
+
+$MOSES_HOME/mosesdecoder/scripts/training/clean-corpus-n.perl Europarl_train_10k.tok.true fr en Europarl_train_10k.tok.true.clean 1 80
+
+Résultat:
+Europarl_train_10k.tok.true.clean.en (wc -l Europarl_train_10k.tok.true.clean.en => 9767 Europarl_train_10k.tok.true.clean.en)
+Europarl_train_10k.tok.true.clean.fr (wc -l Europarl_train_10k.tok.true.clean.fr => 9767 Europarl_train_10k.tok.true.clean.fr)
+
+Remarque:
+On ne garde que les phrases ayant au plus 80 caractères
+
+2) Construction du modèle de langage pour le corpus Anglais
+-----------------------------------------------------------
+
+Objectif: Building an appropriate 3-gram language model, removing singletons, smoothing with improved Kneser-Ney, and adding sentence boundary symbols.
+
+a. Construction du modèle de langage correspondant au corpus Anglais sur le répertoire /home/username/TAL/TP_2/Experiments/Translation
+
+mkdir lm
+
+cd lm
+
+$MOSES_HOME/irstlm/bin/add-start-end.sh < /home/username/TAL/TP_2/Experiments/Translation/Europarl_train_10k.tok.true.en > Europarl_train_10k.tok.true.sb.en
+
+Résultat:
+Europarl_train_10k.tok.true.sb.en
+
+export IRSTLM=$MOSES_HOME/irstlm
+
+$MOSES_HOME/irstlm/bin/build-lm.sh -i Europarl_train_10k.tok.true.sb.en -t ./tmp -p -s improved-kneser-ney -o Europarl_train_10k.tok.true.lm.en
+
+Résultat:
+Europarl_train_10k.tok.true.lm.en.gz
+
+Remarque:
+Comme le répertoire temporaire ./tmp n'existe pas, il sera créé, nettoyé et supprimé.
+
+$MOSES_HOME/irstlm/bin/compile-lm --text=yes Europarl_train_10k.tok.true.lm.en.gz Europarl_train_10k.tok.true.arpa.en
+
+Résultat:
+Europarl_train_10k.tok.true.arpa.en
+
+Remarque:
+- Le modèle de la langue a été appris sur le corpus "Europarl_train_10k.tok.true.en" non nettoyé, c'est-à-dire en gardant les phrases ayant plus de 80 caratères
+
+b. Binarisation du modèle de langue (pour un chargement rapide en mémoire) en utilisant KenLM:
+
+$MOSES_HOME/mosesdecoder/bin/build_binary Europarl_train_10k.tok.true.arpa.en Europarl_train_10k.tok.true.blm.en
+
+Résultat:
+Europarl_train_10k.tok.true.blm.en
+
+c. Vérification du modèle de langue
+
+Exemple 1:
+
+echo "it is the case of Alexander Nikitin ." | $MOSES_HOME/mosesdecoder/bin/query Europarl_train_10k.tok.true.blm.en
+
+it=127 2 -1.2348	is=210 3 -0.204615	the=4 3 -1.18476	case=306 3 -1.78055	of=3 3 -0.447441	Alexander=310 2 -4.574973	Nikitin=311 2 -0.348272	.=38 2 -0.807752</s>=6 2 -0.00154523	Total: -10.584708 OOV: 0
+Perplexity including OOVs:	14.9995659010845
+Perplexity excluding OOVs:	14.9995659010845
+OOVs:	0
+Tokens:	9
+
+echo "it is the case of Alexander Nikitin." | $MOSES_HOME/mosesdecoder/bin/query Europarl_train_10k.tok.true.blm.en
+
+it=127 2 -1.2348	is=210 3 -0.204615	the=4 3 -1.18476	case=306 3 -1.78055	of=3 3 -0.447441	Alexander=310 2 -4.574973	Nikitin.=0 1 -1.681132	</s>=6 1 -1.5009Total: -12.609172 OOV: 1
+Perplexity including OOVs:	37.68308790428066
+Perplexity excluding OOVs:	36.40395411924128
+OOVs:	1
+Tokens:	8
+
+echo "it is the case of Emmanuel Macron ." | $MOSES_HOME/mosesdecoder/bin/query Europarl_train_10k.tok.true.blm.en
+
+it=127 2 -1.2348	is=210 3 -0.204615	the=4 3 -1.18476	case=306 3 -1.78055	of=3 3 -0.447441	Emmanuel=0 1 -2.233487	Macron=0 1 -1.42271	.=38 1 -1.53102	</s>=6 2 -0.00154523	Total: -10.040929 OOV: 2
+Perplexity including OOVs:	13.051449883839684
+Perplexity excluding OOVs:	8.167790176461077
+OOVs:	2
+Tokens:	9
+
+
+3) Apprentissage du modèle de traduction
+----------------------------------------
+
+a. Alignement de mots avec GIZA++, Extraction d'expressions et affectation de poids, Création des lexicalised reordering tables et Création du fichier de configuration Moses 
+
+Sur le répertoire /home/username/TAL/TP_2/Experiments/Translation
+
+mkdir working
+
+cd working
+
+$MOSES_HOME/mosesdecoder/scripts/training/train-model.perl -root-dir train -corpus /home/username/TAL/TP_2/Experiments/Translation/Europarl_train_10k.tok.true.clean -f fr -e en -alignment grow-diag-final-and -reordering msd-bidirectional-fe -lm 0:3:$MOSES_HOME/Experiments/Translation/lm/Europarl_train_10k.tok.true.blm.en:8 -external-bin-dir $MOSES_HOME/mosesdecoder/tools >& training.out &
+
+Résultat:
+- Création du répertoire "train" sur le répertoire /home/username/TAL/TP_2/Experiments/Translation/working
+- Création du fichier "training.out" contenant le journal des résultats de la commande précédente (.../train-model.perl...)
+- Les répertoires ci-dessous ont été créés sur le répertoire "train":
+  corpus (contenant les .snt, .vcb, .classes et .cat)
+  giza.en-fr (contenant la table de traduction en-fr.A3.final.gz, etc.)
+  giza.fr-en (contenant la table de traduction fr-en.A3.final.gz, etc.)
+  model (contenant le fichier de configuration de Moses moses.ini, les lexiques lex.e2f et lex.f2e, la table d'expressions phrase-table.gz, etc.)
+  
+Remarques:
+- Le modèle de traduction a été appris sur le corpus parallèle nettoyé "Europarl_train_10k.tok.true.clean.fr" et "Europarl_train_10k.tok.true.clean.en"
+- Le modèle spécifié par moses.ini est très lent à charger. On peut résoudre ce problème en binarisant les phrase table and reordering table en les compilant dans un format qui se charge rapidement.
+- Les poids utilisés par Moses pour mesurer les différents modèles les uns par rapport aux autres ne sont pas optimisés. En regardant le fichier moses.ini on trouve que ces poinds ont les valeurs par défaut 0.2, 0.3 etc. Pour trouver les meilleurs poids nous avons besoin de tunner le système de traduction.
+
+b. Tuning du système de traduction
+
+Sur le répertoire /home/username/TAL/TP_2/Experiments/Translation
+
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < Europarl_dev_1k.en > Europarl_dev_1k.tok.en
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/tokenizer.perl -l fr < Europarl_dev_1k.fr > Europarl_dev_1k.tok.fr
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/truecase.perl --model /home/username/TAL/TP_2/Experiments/Translation/truecase-model.en < Europarl_dev_1k.tok.en > Europarl_dev_1k.true.en
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/truecase.perl --model /home/username/TAL/TP_2/Experiments/Translation/truecase-model.fr < Europarl_dev_1k.tok.fr > Europarl_dev_1k.true.fr
+
+$MOSES_HOME/mosesdecoder/scripts/training/mert-moses.pl /home/username/TAL/TP_2/Experiments/Translation/Europarl_dev_1k.true.fr /home/username/TAL/TP_2/Experiments/Translation/Europarl_dev_1k.true.en $MOSES_HOME/mosesdecoder/bin/moses /home/username/TAL/TP_2/Experiments/Translation/working/train/model/moses.ini --mertdir $MOSES_HOME/mosesdecoder/bin/ --decoder-flags '-threads 8' &> mert.out &
+
+Remarque:
+- Avec l'option --decoder-flags '-threads 8', cette opération a pris environ 2 heures
+- Le tuning du système de traduction a été réalisé sur le corpus de développement "Europarl_dev_1k.true.fr" et  "Europarl_dev_1k.true.en"
+- La taille du corpus de développement corpus de développement "Europarl_dev_1k.true.fr" et  "Europarl_dev_1k.true.en" est de 1000 phrases (soit 10% du corpus d'apprentissage du modèle de traduction)
+
+Résultat:
+- Création du répertoire "mert-work" sur le répertoire /home/username/TAL/TP_2/Experiments/Translation
+- Création du fichier "mert.out" contenant le journal des résultats de la commande précédente (.../mert-moses.pl ...)
+- Les fichiers ci-dessous ont été créés sur le répertoire "mert-work":
+
+run1.best100.out.gz
+run1.dense
+run1.extract.err
+run1.extract.out
+run1.features.dat
+run1.init.opt
+run1.mert.log
+run1.mert.out
+run1.moses.ini
+run1.out
+run1.scores.dat
+run1.weights.txt
+...
+run8.dense
+run8.extract.err
+run8.extract.out
+run8.features.dat
+run8.init.opt
+run8.mert.log
+run8.mert.out
+run8.moses.ini
+run8.out
+run8.scores.dat
+run8.weights.txt
+weights.txt
+
+- Le fichier "moses.ini" a été créé sur le répertoire /home/username/TAL/TP_2/Experiments/Translation/mert-work. Il contient la configuration optimale de Moses après l'apprentissage ciblé utilisant le corpus de développement. 
+
+c. Expérimenter Moses sur une phrase à traduire
+
+$MOSES_HOME/mosesdecoder/bin/moses -f /home/username/TAL/TP_2/Experiments/Translation/mert-work/moses.ini
+
+Résultat:
+Après l'affichage de "Created input-output object : [314.321] seconds", on peut saisir la phrase à traduire "j'ai acheté une voiture rouge la semaine dernière".
+
+Translating: j'ai acheté une voiture rouge la semaine dernière 
+Line 0: Initialize search took 0.000 seconds total
+Line 0: Collecting options took 0.000 seconds at moses/Manager.cpp Line 141
+Line 0: Search took 0.040 seconds
+j'ai acheté a car red the week 
+BEST TRANSLATION: j'ai|UNK|UNK|UNK acheté|UNK|UNK|UNK a car red the week [11111111]  [total=-205.302] core=(-200.000,-7.000,6.000,-3.619,-8.240,-1.886,-4.471,-3.163,0.000,0.000,-2.160,0.000,0.000,0.000,-49.905)  
+Line 0: Decision rule took 0.000 seconds total
+Line 0: Additional reporting took 0.000 seconds total
+Line 0: Translation took 0.041 seconds total
+
+
+Remarque:
+- L'opération de chargement de la table de traduction et le modèle de langue du décodeur (phrase-table and lexicalised reordering models) a pris plusieurs minutes.
+- L'opération de traduction de la phrase saisie manuellement a pris 0.041 secondes
+
+Pour rendre plus rapide le lancement du décodeur, on peut binariser la table de traduction et le modèle de langue.
+
+d. Expérimenter Moses sur un corpus de test
+
+cd /home/username/TAL/TP_2/Experiments/Translation
+
+1. Tokenisation du corpus de test source et cible
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.en > Europarl_test_500.tok.en
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/tokenizer.perl -l fr < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.fr > Europarl_test_500.tok.fr
+
+Résultat:
+- Europarl_test_500.tok.en
+- Europarl_test_500.tok.fr
+
+2. Transformation en minuscules du corpus de test source et cible
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/truecase.perl --model /home/username/TAL/TP_2/Experiments/Translation/truecase-model.en < Europarl_test_500.tok.en > Europarl_test_500.true.en
+
+$MOSES_HOME/mosesdecoder/scripts/recaser/truecase.perl --model /home/username/TAL/TP_2/Experiments/Translation/truecase-model.fr < Europarl_test_500.tok.fr > Europarl_test_500.true.fr
+
+Résultat:
+- Europarl_test_500.true.en
+- Europarl_test_500.true.fr
+
+3. Traduction du corpus de test source
+
+$MOSES_HOME/mosesdecoder/bin/moses -f /home/username/TAL/TP_2/Experiments/Translation/mert-work/moses.ini < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.true.fr > /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.translated.en 2> /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.out
+
+Résultat:
+Création des fichiers "Europarl_test_500.translated.en" et "Europarl_test_500.out" sur le répertoire /home/semmar/Projects/Moses/working.
+- Le fichier "Europarl_test_500.out" contient le journal des résultats de la commande précédente ($MOSES_HOME/mosesdecoder/bin/moses...)
+- Le fichier "Europarl_test_500.translated.en" contient le résultat de la traduction du fichier "Europarl_test_500.true.fr"
+
+Remarques:
+- Le modèle de traduction appris peut être filtré pour ce corpus de test. Ce qui veut dire qu'on retiendra que les entrées nécessaires pour traduire ce corpus. Ceci permettra de rendre la traduction plus rapide. Les instructions suivantes permettent de réaliser ce filtrage:
+
+
+4. Calcul du score BLEU pour mesurer la qualité de traduction
+
+a. Corpus tokenisés
+
+$MOSES_HOME/mosesdecoder/scripts/generic/multi-bleu.perl -lc /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.true.en < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.translated.en
+
+Résultat:
+BLEU = 29.09, 63.1/35.1/22.3/14.5 (BP=1.000, ratio=1.023, hyp_len=12966, ref_len=12670)
+It is not advisable to publish scores from multi-bleu.perl.  The scores depend on your tokenizer, which is unlikely to be reproducible from your paper or consistent across research groups.  Instead you should detokenize then use mteval-v14.pl, which has a standard tokenization.  Scores from multi-bleu.perl can still be used for internal purposes when you have a consistent tokenizer.
+
+- Ce score BLEU a été calculé en comparant le fichier contenant les traductions produites par Moses "Europarl_test_500.translated.en" et le fichier contenant les traduction de référence "Europarl_test_500.true.en".
+- Les fichiers "Europarl_test_500.translated.en" et le fichier contenant les traduction de référence "Europarl_test_500.true.en" sont tokenisés.
+
+b. Corpus détokenisés
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/detokenizer.perl -l en < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.translated.en > Europarl_test_500.translated.detokenized.en
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/detokenizer.perl -l en < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.true.en > Europarl_test_500.true.detokenized.en
+
+1) Calcul du score BLEU à l'aide du script  multi-bleu.perl
+$MOSES_HOME/mosesdecoder/scripts/generic/multi-bleu.perl -lc /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.true.detokenized.en < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.translated.detokenized.en
+
+BLEU = 25.40, 57.1/31.4/19.2/12.1 (BP=1.000, ratio=1.024, hyp_len=11705, ref_len=11431)
+It is not advisable to publish scores from multi-bleu.perl.  The scores depend on your tokenizer, which is unlikely to be reproducible from your paper or consistent across research groups.  Instead you should detokenize then use mteval-v14.pl, which has a standard tokenization.  Scores from multi-bleu.perl can still be used for internal purposes when you have a consistent tokenizer.
+
+2) Calcul du score BLEU à l'aide du script  mteval-v14.pl
+
+sudo apt-get install libsort-naturally-perl
+
+Usage: /home/username/TAL/TP_2/mosesdecoder/scripts/generic/mteval-v14.pl -r <ref_file> -s <src_file> -t <tst_file>
+
+$MOSES_HOME/mosesdecoder/scripts/tokenizer/detokenizer.perl -l fr < /home/username/TAL/TP_2/Experiments/Translation/Europarl_test_500.true.fr > Europarl_test_500.true.detokenized.fr
+
+
+
