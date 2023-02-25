@@ -58,5 +58,15 @@ python .\src\compute-bleu.py .\toy-ende\tgt-test.txt .\toy-ende\pred_1000.txt
 onmt_build_vocab -config europarl.yaml -n_sample 10000
 onmt_train -config europarl.yaml
 ```
+Résultat de la commande : 
+```
+[2023-02-25 18:12:49,982 INFO] Train perplexity: 890.633
+[2023-02-25 18:12:49,983 INFO] Train accuracy: 10.074
+[2023-02-25 18:12:49,983 INFO] Sentences processed: 64000
+[2023-02-25 18:12:49,983 INFO] Average bsz: 1359/1462/64
+[2023-02-25 18:12:49,983 INFO] Validation perplexity: 355.288
+[2023-02-25 18:12:49,983 INFO] Validation accuracy: 14.7751
+[2023-02-25 18:12:50,051 INFO] Saving checkpoint europarl/run/model_step_1000.pt
+```
 
 ### 
