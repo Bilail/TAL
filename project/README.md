@@ -54,5 +54,9 @@ python .\src\compute-bleu.py .\toy-ende\tgt-test.txt .\toy-ende\pred_1000.txt
 
 ## Utilisation du moteur OpenNMT sur les corpus TRAIN, DEV et TEST
 
+```
+onmt_build_vocab -config europarl.yaml -n_sample 10000
+onmt_train -config europarl.yaml
+```
 
 ### 
