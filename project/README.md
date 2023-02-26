@@ -114,14 +114,30 @@ Nous utilisons les scripts de `mosesdecoder` afin de préparer les corpus.
 Corpus anglais :
 ```
 mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/europarl/Europarl_train_100k.en > data/europarl/Europarl_train_100k.tok.en
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/europarl/Europarl_dev_3750.en > data/europarl/Europarl_dev_3750.tok.en
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/europarl/Europarl_test2_500.en > data/europarl/Europarl_test2_500.tok.en
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/EMEA/Emea_train_10k.en > data/EMEA/Emea_train_10k.tok.en
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/EMEA/Emea_test_500.en > data/EMEA/Emea_test_500.tok.en
 ```
 Corpus français :
 ```
 mosesdecoder/scripts/tokenizer/tokenizer.perl -l fr < data/europarl/Europarl_train_100k.fr > data/europarl/Europarl_train_100k.tok.fr
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/europarl/Europarl_dev_3750.fr > data/europarl/Europarl_dev_3750.tok.fr
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/europarl/Europarl_test2_500.fr > data/europarl/Europarl_test2_500.tok.fr
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/EMEA/Emea_train_10k.fr > data/EMEA/Emea_train_10k.tok.fr
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/EMEA/Emea_test_500.fr > data/EMEA/Emea_test_500.tok.fr
 ```
 Nous obtenons les fichiers :
 - Europarl_train_100k.tok.en
+- Europarl_dev_3750.tok.en
+- Europarl_test2_500.tok.en
+- Emea_train_10k.tok.en
+- Emea_test_500.tok.en
 - Europarl_train_100k.tok.fr
+- Europarl_dev_3750.tok.fr
+- Europarl_test2_500.tok.fr
+- Emea_train_10k.tok.fr
+- Emea_test_500.tok.fr
 
 ### Changement des majuscules en minuscules du corpus Anglais-Français
 
@@ -130,36 +146,78 @@ Nous obtenons les fichiers :
 Corpus anglais :
 ```
 mosesdecoder/scripts/recaser/train-truecaser.perl --model data/europarl/truecase-model.en --corpus data/europarl/Europarl_train_100k.tok.en
+mosesdecoder/scripts/recaser/train-truecaser.perl --model data/EMEA/truecase-model.en --corpus data/EMEA/Emea_train_10k.tok.en
 ```
 Corpus français :
 ```
 mosesdecoder/scripts/recaser/train-truecaser.perl --model data/europarl/truecase-model.fr --corpus data/europarl/Europarl_train_100k.tok.fr
+mosesdecoder/scripts/recaser/train-truecaser.perl --model data/EMEA/truecase-model.fr --corpus data/EMEA/Emea_train_10k.tok.fr
 ```
 Nous obtenons les fichiers :
-- truecase-model.en
-- truecase-model.fr
+- truecase-model.en (Europarl)
+- truecase-model.en (EMEA)
+- truecase-model.fr (Europarl)
+- truecase-model.fr (EMEA)
 
 #### Transformation des majuscules en minuscules
 
 Corpus anglais :
 ```
 mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.en < data/europarl/Europarl_train_100k.tok.en > data/europarl/Europarl_train_100k.tok.true.en
+mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.en < data/europarl/Europarl_dev_3750.tok.en > data/europarl/Europarl_dev_3750.tok.true.en
+mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.en < data/europarl/Europarl_test2_500.tok.en > data/europarl/Europarl_test2_500.tok.true.en
+mosesdecoder/scripts/recaser/truecase.perl --model data/EMEA/truecase-model.en < data/EMEA/Emea_train_10k.tok.en > data/EMEA/Emea_train_10k.tok.true.en
+mosesdecoder/scripts/recaser/truecase.perl --model data/EMEA/truecase-model.en < data/EMEA/Emea_test_500.tok.en > data/EMEA/Emea_test_500.tok.true.en
 ```
 Corpus français :
 ```
 mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.fr < data/europarl/Europarl_train_100k.tok.fr > data/europarl/Europarl_train_100k.tok.true.fr
+mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.fr < data/europarl/Europarl_dev_3750.tok.fr > data/europarl/Europarl_dev_3750.tok.true.fr
+mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.fr < data/europarl/Europarl_test2_500.tok.fr > data/europarl/Europarl_test2_500.tok.true.fr
+mosesdecoder/scripts/recaser/truecase.perl --model data/EMEA/truecase-model.fr < data/EMEA/Emea_train_10k.tok.fr > data/EMEA/Emea_train_10k.tok.true.fr
+mosesdecoder/scripts/recaser/truecase.perl --model data/EMEA/truecase-model.fr < data/EMEA/Emea_test_500.tok.fr > data/EMEA/Emea_test_500.tok.true.fr
 ```
 Nous obtenons les fichiers :
 - Europarl_train_100k.tok.true.en
+- Europarl_dev_3750.tok.true.en
+- Europarl_test2_500.tok.true.en
+- Emea_train_10k.tok.true.en
+- Emea_test_500.tok.true.en
 - Europarl_train_100k.tok.true.fr
+- Europarl_dev_3750.tok.true.fr
+- Europarl_test2_500.tok.true.fr
+- Emea_train_10k.tok.true.fr
+- Emea_test_500.tok.true.fr
 
 ### Nettoyage en limitant la longueur des phrases à 80 caractères
 
 Dans cette étape, nous allons supprimer toutes les phrases ayant plus de 80 caractères. Cela va donc légérement diminuer la taille de notre corpus. Pour ce faire, on exécute la commande suivante :
 ```
 mosesdecoder/scripts/training/clean-corpus-n.perl data/europarl/Europarl_train_100k.tok.true fr en data/europarl/Europarl_train_100k.tok.true.clean 1 80
+mosesdecoder/scripts/training/clean-corpus-n.perl data/europarl/Europarl_dev_3750.tok.true fr en data/europarl/Europarl_dev_3750.tok.true.clean 1 80
+mosesdecoder/scripts/training/clean-corpus-n.perl data/europarl/Europarl_test2_500.tok.true fr en data/europarl/Europarl_test2_500.tok.true.clean 1 80
+mosesdecoder/scripts/training/clean-corpus-n.perl data/EMEA/Emea_train_10k.tok.true fr en data/EMEA/Emea_train_10k.tok.true.clean 1 80
+mosesdecoder/scripts/training/clean-corpus-n.perl data/EMEA/Emea_test_500.tok.true fr en data/EMEA/Emea_test_500.tok.true.clean 1 80
 ```
 Nous obtenons les fichiers :
 - Europarl_train_100k.tok.true.clean.en (97769 lignes avec la commande `wc -l`)
+- Europarl_dev_3750.tok.true.clean.en (3645 lignes avec la commande `wc -l`)
+- Europarl_test2_500.tok.true.clean.en (488 lignes avec la commande `wc -l`)
+- Emea_train_10k.tok.true.clean.en (9881 lignes avec la commande `wc -l`)
+- Emea_test_500.tok.true.clean.en (500 lignes avec la commande `wc -l`)
 - Europarl_train_100k.tok.true.clean.fr (97769 lignes avec la commande `wc -l`)
+- Europarl_dev_3750.tok.true.clean.fr (3645 lignes avec la commande `wc -l`)
+- Europarl_test2_500.tok.true.clean.fr (488 lignes avec la commande `wc -l`)
+- Emea_train_10k.tok.true.clean.fr (9881 lignes avec la commande `wc -l`)
+- Emea_test_500.tok.true.clean.fr (500 lignes avec la commande `wc -l`)
+
+Ainsi, nous venons de nettoyer tous nos corpus et nous pouvons passer au étapes d'apprentissage et de traduction d'OpenNMT.
+
+## Apprentissage avec OpenNMT
+
+
+## Traduction avec les corpus TEST
+
+
+## Evaluation avec le score BLEU
 
