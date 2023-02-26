@@ -100,4 +100,66 @@ Résultat obtenu :
 BLEU:  0.8677162612098606
 ```
 
-### Evaluation sur des corpus parallèles en formes fléchies à large échelle
+# Evaluation sur des corpus parallèles en formes fléchies à large échelle
+
+Nous avons commencé par créé les fichiers suivants à partir du corpus Europarl : `Europarl_train_100k.en/fr`, `Europarl_dev_3750.en/fr` et `Europarl_test2_500.en/fr`.
+De plus, nous avons également créé les fichiers suivants à partir du corpus EMEA : `Emea_train_10k.en/fr` et `Emea_test_500.en/fr`.
+
+## Préparation des corpus pour l'apprentissage
+
+Nous utilisons les scripts de `mosesdecoder` afin de préparer les corpus.
+
+### Tokenisation du corpus Anglais-Français
+
+Corpus anglais :
+```
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < data/europarl/Europarl_train_100k.en > data/europarl/Europarl_train_100k.tok.en
+```
+Corpus français :
+```
+mosesdecoder/scripts/tokenizer/tokenizer.perl -l fr < data/europarl/Europarl_train_100k.fr > data/europarl/Europarl_train_100k.tok.fr
+```
+Nous obtenons les fichiers :
+- Europarl_train_100k.tok.en
+- Europarl_train_100k.tok.fr
+
+### Changement des majuscules en minuscules du corpus Anglais-Français
+
+#### Apprentissage du modèle de transformation
+
+Corpus anglais :
+```
+mosesdecoder/scripts/recaser/train-truecaser.perl --model data/europarl/truecase-model.en --corpus data/europarl/Europarl_train_100k.tok.en
+```
+Corpus français :
+```
+mosesdecoder/scripts/recaser/train-truecaser.perl --model data/europarl/truecase-model.fr --corpus data/europarl/Europarl_train_100k.tok.fr
+```
+Nous obtenons les fichiers :
+- truecase-model.en
+- truecase-model.fr
+
+#### Transformation des majuscules en minuscules
+
+Corpus anglais :
+```
+mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.en < data/europarl/Europarl_train_100k.tok.en > data/europarl/Europarl_train_100k.tok.true.en
+```
+Corpus français :
+```
+mosesdecoder/scripts/recaser/truecase.perl --model data/europarl/truecase-model.fr < data/europarl/Europarl_train_100k.tok.fr > data/europarl/Europarl_train_100k.tok.true.fr
+```
+Nous obtenons les fichiers :
+- Europarl_train_100k.tok.true.en
+- Europarl_train_100k.tok.true.fr
+
+### Nettoyage en limitant la longueur des phrases à 80 caractères
+
+Dans cette étape, nous allons supprimer toutes les phrases ayant plus de 80 caractères. Cela va donc légérement diminuer la taille de notre corpus. Pour ce faire, on exécute la commande suivante :
+```
+mosesdecoder/scripts/training/clean-corpus-n.perl data/europarl/Europarl_train_100k.tok.true fr en data/europarl/Europarl_train_100k.tok.true.clean 1 80
+```
+Nous obtenons les fichiers :
+- Europarl_train_100k.tok.true.clean.en (97769 lignes avec la commande `wc -l`)
+- Europarl_train_100k.tok.true.clean.fr (97769 lignes avec la commande `wc -l`)
+
