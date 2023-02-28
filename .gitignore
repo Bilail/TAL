@@ -20,5 +20,8 @@ replit*
 pyproject.toml
 TP/TP1/__pycache__/*
 
-project/*run*
+*.pt
+*vocab.src
+*vocab.tgt
+pred_*
 
