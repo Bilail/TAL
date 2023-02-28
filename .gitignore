@@ -20,4 +20,5 @@ replit*
 pyproject.toml
 TP/TP1/__pycache__/*
 
-/project/europarl/run
+project/*run*
+
