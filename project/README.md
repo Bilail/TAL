@@ -355,3 +355,136 @@ python ./src/compute-bleu.py ./data/EMEA/Emea_test_500.tok.true.clean.fr ./data/
 Score BLEU : `74.55`
 
 La première chose que l’on remarque à la suite de cette expérimentation est le score très élevé pour la traduction du corpus hors-domaine. Le fait d’avoir inclus le corpus hors-domaine lors de la phase d’apprentissage à donc eu un impact très important. En revanche, on observe également que le score BLEU de la traduction du texte du domaine a diminué de presque 30%. Cela est dû au poids que l’on affecte à chaque corpus lors de la phase d’apprentissage. Dans notre cas, nous avons attribué un point équivalent pour le corpus Europarl et Emea, ce qui signifie que notre modèle essaie d’équilibrer l’importance de chaque corpus. Ainsi, cela est logique que ce second modèle soit moins performant pour le corpus Europarl car il n’est pas “spécialisé” uniquement dans ce domaine, contrairement au premier modèle de la run n°1.
+
+# Evaluation sur des corpus parallèles en lemmes à large échelle
+
+## Lemmatisation des corpus
+
+Nous avons crée un script python permettant de lemmatiser un texte. Pour cela il suffit de fournir la langue, le fichier d’entrée et le fichier de sorti de la façon suivante :
+
+```bash
+python src/lemmatisation.py [en/fr] input_file output_file
+```
+
+*Remarque : il faut utiliser les commandes ci-dessous pour installer les librairies de lemmatisation anglais et français.*
+
+```bash
+pip install nltk
+pip install git+https://github.com/ClaudeCoulombe/FrenchLefffLemmatizer.git
+```
+
+Ainsi, nous utilisons cette commande pour lemmatiser tous nos corpus.
+
+Lemmatisation des corpus anglais :
+
+```bash
+python src/lemmatisation.py en data/europarl/Europarl_train_100k.tok.true.clean.en data/europarl/train_100k_lemmatized.en
+python src/lemmatisation.py en data/europarl/Europarl_dev_3750.tok.true.clean.en data/europarl/dev_3750_lemmatized.en
+python src/lemmatisation.py en data/europarl/Europarl_test2_500.tok.true.clean.en data/europarl/test_500_lemmatized.en
+python src/lemmatisation.py en data/EMEA/Emea_train_10k.tok.true.clean.en data/EMEA/train_10k_lemmatized.en
+python src/lemmatisation.py en data/EMEA/Emea_test_500.tok.true.clean.en data/EMEA/test_500_lemmatized.en
+```
+
+Lemmatisation des corpus français :
+
+```bash
+python src/lemmatisation.py fr data/europarl/Europarl_train_100k.tok.true.clean.fr data/europarl/train_100k_lemmatized.fr
+python src/lemmatisation.py en data/europarl/Europarl_dev_3750.tok.true.clean.fr data/europarl/dev_3750_lemmatized.fr 
+python src/lemmatisation.py fr data/europarl/Europarl_test2_500.tok.true.clean.fr data/europarl/test_500_lemmatized.fr
+python src/lemmatisation.py fr data/EMEA/Emea_train_10k.tok.true.clean.fr data/EMEA/train_10k_lemmatized.fr
+python src/lemmatisation.py fr data/EMEA/Emea_test_500.tok.true.clean.fr data/EMEA/test_500_lemmatized.fr
+```
+
+## Apprentissage avec OpenNMT
+
+Ici, nous relaçons les phases d’apprentissage en suivant le protocole expérimental de l’exercice III.
+
+Nous avons crée les fichiers fichiers de configurations `run_1_lemmes.yaml`et `run_2_lemmes.yaml` afin d’utiliser les nouveaux corpus générés lors de l’étape précédente.
+
+Génération du vocabulaire pour chaque run :
+
+```
+onmt_build_vocab -config run_1_lemmes.yaml -n_sample 100000
+onmt_build_vocab -config run_2_lemmes.yaml -n_sample 100000
+```
+
+Lancement des apprentissages :
+
+```
+onmt_train -config run_1_lemmes.yaml
+onmt_train -config run_2_lemmes.yaml
+```
+
+## Traduction et évaluation du score BLEU
+
+### Traduction avec le modèle de la run n°1
+
+On effectue 2 traductions : l’un avec un corpus de test du domaine, et un autre hors-domaine.
+
+Traduction du corpus du domaine :
+
+```bash
+onmt_translate -model data/run_1_lemmes/model_step_10000.pt -src data/europarl/test_500_lemmatized.en -output data/run_1_lemmes/pred_domaine.txt -verbose
+```
+
+Traduction du corpus hors-domaine :
+
+```bash
+onmt_translate -model data/run_1_lemmes/model_step_10000.pt -src data/EMEA/test_500_lemmatized.en -output data/run_1_lemmes/pred_hors_domaine.txt -verbose
+```
+
+Ensuite nous calculons le score BLEU pour chaque corpus.
+
+Calcul du score BLEU pour le corpus du domaine :
+
+```
+python ./src/compute-bleu.py ./data/europarl/test_500_lemmatized.fr ./data/run_1_lemmes/pred_domaine.txt
+```
+
+Score BLEU : `22.15`
+
+Calcul du score BLEU pour le corpus hors-domaine :
+
+```bash
+python ./src/compute-bleu.py ./data/EMEA/test_500_lemmatized.fr ./data/run_1_lemmes/pred_hors_domaine.txt
+```
+
+Score BLEU : `0.75`
+
+On peut observer que notre modèle de traduction reste faiblement correcte sur des corpus du même domaine. En revanche, dès que nous essayons de traduire des textes provenant d’un domaine différent, notre modèle redevient inefficace.
+
+### Traduction avec le modèle de la run n°2
+
+Cette fois, ci on effectue les même commande que pour la run n°1, mais avec le modèle de la run n°2. Pour rappel, ce modèle a été entrainé avec des données du corpus Europarl et Emea.
+
+Traduction du corpus du domaine :
+
+```bash
+onmt_translate -model data/run_2_lemmes/model_step_10000.pt -src data/europarl/test_500_lemmatized.en -output data/run_2_lemmes/pred_domaine.txt -verbose
+```
+
+Traduction du corpus hors-domaine :
+
+```bash
+onmt_translate -model data/run_2_lemmes/model_step_10000.pt -src data/EMEA/test_500_lemmatized.en -output data/run_2_lemmes/pred_hors_domaine.txt -verbose
+```
+
+Ensuite nous calculons le score BLEU pour chaque corpus.
+
+Calcul du score BLEU pour le corpus du domaine :
+
+```
+python ./src/compute-bleu.py ./data/europarl/test_500_lemmatized.fr ./data/run_2_lemmes/pred_domaine.txt
+```
+
+Score BLEU : `16.57`
+
+Calcul du score BLEU pour le corpus hors-domaine :
+
+```bash
+python ./src/compute-bleu.py ./data/EMEA/test_500_lemmatized.fr ./data/run_2_lemmes/pred_hors_domaine.txt
+```
+
+Score BLEU : `83.76`
+
+Les performance du modèle sont assez mauvaises pour la traduction de corpus du domaine. En revanche, le score BLEU est très élevé pour la traduction du corpus hors-domaine.

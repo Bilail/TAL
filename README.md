@@ -15,7 +15,7 @@ Ce repo possède une arborescence où chaque fichier `README.md` se trouve dans 
 │   └── TP2
 │       ├── ...
 │       └── README.md
-├── PROJET
+├── PROJECT
 │   ├── ...
 │   └── README.md
 └── README.md (vous êtes ici)
